@@ -3,7 +3,6 @@ package com.smoko;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class PlayField {
     private final int hBlockCount;
     private final int vBlockCount;
@@ -38,10 +37,11 @@ public class PlayField {
                 block = bl;
             }
         }
+
         return block;
     }
 
-    public List<Block> getPositionBlockCount(int x, int y) {
+    public List<Block> getBlocksByPosition(int x, int y) {
         List<Block> blockList = new ArrayList<>();
 
         for (Block bl : getBlocks()) {
@@ -53,6 +53,23 @@ public class PlayField {
         return blockList;
     }
 
+    // returns a list of empty points (where there's no blocks)
+    public List<Point> getEmptyPoints() {
+        // check if at given coords on the field there is a block
+        List<Point> points = new ArrayList<>();
+        for (int y = 0; y < this.getVBlockCount(); y++) {
+            for (int x = 0; x < this.getHBlockCount(); x++) {
+                Block block = this.getBlock(x, y);
+                if (block == null) {
+                    Point point = new Point(x, y);
+                    points.add(point);
+                }
+            }
+        }
+
+        return points;
+    }
+
     public Point getStartPoint() {
         Point point = new Point(getStartPointX(), getStartPointY());
         return point;
@@ -60,13 +77,10 @@ public class PlayField {
 
     public int getStartPointX() {
         int result = this.hBlockCount / 2;
-
         return result;
     }
 
     public int getStartPointY() {
-        int result = this.vBlockCount / 2;
-
         return 0;
     }
 }

@@ -4,11 +4,18 @@ public class Snake {
     private Block head;
     private Block tail;
     private PlayField playField;
+    private Block eatenBlock;
+    private Block neck;
 
     public Snake(Block head, Block tail, PlayField playField) {
         this.head = head;
         this.tail = tail;
         this.playField = playField;
+        this.neck = tail;
+
+        while (neck.getNextBlock() != head) {
+            neck = neck.getNextBlock();
+        }
     }
 
     public Block getHead() {
@@ -25,6 +32,10 @@ public class Snake {
 
     public void setTail(Block tail) {
         this.tail = tail;
+    }
+
+    public Block getEatenBlock() {
+        return eatenBlock;
     }
 
     public void moveDown() {
@@ -51,6 +62,23 @@ public class Snake {
         keepSnakeInPlayfield();
     }
 
+    public boolean canSnakeMoveDown() {
+        return this.head.getPoint().getY() + 1 != neck.getPoint().getY();
+    }
+
+    public boolean canSnakeMoveUp() {
+        return this.head.getPoint().getY() - 1 != neck.getPoint().getY();
+    }
+
+    public boolean canSnakeMoveLeft() {
+        return this.head.getPoint().getX() - 1 != neck.getPoint().getX();
+    }
+
+    public boolean canSnakeMoveRight() {
+        return this.head.getPoint().getX() + 1 != neck.getPoint().getX();
+    }
+
+    // to make sure the snake doesn't disappear somewhere outside the playfield
     public void keepSnakeInPlayfield() {
         if (this.head.getPoint().getX() == playField.getHBlockCount()) {
             this.head.getPoint().setX(0);
@@ -68,6 +96,10 @@ public class Snake {
     public void moveBody() {
         Block blockToMove = tail;
 
+        if (eatenBlock != null) {
+            eatenBlock.setPoint(new Point(tail.getPoint().getX(), tail.getPoint().getY()));
+        }
+
         do {
             Block nextBlock = blockToMove.getNextBlock();
             if (nextBlock != null) {
@@ -79,5 +111,15 @@ public class Snake {
                 break;
             }
         } while (blockToMove != null);
+
+        if (eatenBlock != null) {
+            eatenBlock.setNextBlock(tail);
+            tail = eatenBlock;
+            eatenBlock = null;
+        }
+    }
+
+    public void eat(Block block) {
+        this.eatenBlock = block;
     }
 }

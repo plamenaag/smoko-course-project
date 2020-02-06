@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -14,8 +15,11 @@ public class GameEngine extends JFrame implements KeyListener {
     private String moveDirection;
     private PlayField playField;
     private Snake snake;
-    private Long lastMoveTime;
+    private Food food;
+    private Long snakeLastMoveTime;
+    private Long foodLastMoveTime;
     private int score;
+    private ScheduledExecutorService executor;
 
     public GameEngine(int xSize, int ySize) {
         super();
@@ -49,6 +53,8 @@ public class GameEngine extends JFrame implements KeyListener {
     }
 
     public void run() {
+        score = 0;
+
         List<Block> blocks = new ArrayList<>();
         for (int i = 0; i < Constants.START_SNAKE_SIZE; i++) {
             if (i == 0) {
@@ -64,14 +70,19 @@ public class GameEngine extends JFrame implements KeyListener {
         snake = new Snake(blocks.get(0), blocks.get(blocks.size() - 1), playField);
         playField.setBlocks(blocks);
 
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(this::runLoop, 0, 16, TimeUnit.MILLISECONDS);
     }
 
     public void runLoop() {
         this.repaint();
 
-        if (hasMoveTimeElapsed()) {
+        if (food == null) {
+            food = createRandomFoodBlock();
+            playField.getBlocks().add(food);
+        }
+
+        if (hasSnakeMoveTimeElapsed()) {
             switch (moveDirection) {
                 case "R":
                     snake.moveRight();
@@ -87,12 +98,69 @@ public class GameEngine extends JFrame implements KeyListener {
                     break;
             }
 
-            lastMoveTime = System.currentTimeMillis();
+            if (!tryToEatFood()) {
+                List<Block> blocks = playField.getBlocksByPosition(snake.getHead().getPoint().getX(), snake.getHead().getPoint().getY());
+                blocks.remove(snake.getHead());
+                if (!blocks.isEmpty()) {
+                    executor.shutdownNow();
+                    JFrame frame = new JFrame();
+                    JOptionPane.showMessageDialog(frame, "GAME OVER!!! Score: " + score);
+                    this.repaint();
+                    return;
+                }
+
+                if (food != null && food.isDynamic() && hasFoodMoveTimeElapsed()) {
+                    food.move();
+                    tryToEatFood();
+                    foodLastMoveTime = System.currentTimeMillis();
+                }
+            }
+
+            snakeLastMoveTime = System.currentTimeMillis();
         }
     }
 
-    private boolean hasMoveTimeElapsed() {
-        if (lastMoveTime == null || System.currentTimeMillis() - lastMoveTime > 200) {
+    private boolean tryToEatFood() {
+        if (snake.getHead().getPoint().getX() == this.food.getPoint().getX()
+                && snake.getHead().getPoint().getY() == this.food.getPoint().getY()) {
+            snake.eat(food);
+
+            if (food.isDynamic()) {
+                score += 15;
+            } else {
+                score += 10;
+            }
+
+            food = null;
+            return true;
+        }
+
+        return false;
+    }
+
+    private Food createRandomFoodBlock() {
+        Random r = new Random();
+        List<Point> emptyPoints = playField.getEmptyPoints();
+        int randomPointIndex = r.nextInt(emptyPoints.size());
+        Point point = emptyPoints.get(randomPointIndex);
+        Food food = new Food(point, playField);
+        if (randomPointIndex % 2 == 0) {
+            food.setDynamic(true);
+        }
+
+        return food;
+    }
+
+
+    private boolean hasSnakeMoveTimeElapsed() {
+        if (snakeLastMoveTime == null || System.currentTimeMillis() - snakeLastMoveTime > 200) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean hasFoodMoveTimeElapsed() {
+        if (foodLastMoveTime == null || System.currentTimeMillis() - foodLastMoveTime > 400) {
             return true;
         }
         return false;
@@ -120,36 +188,21 @@ public class GameEngine extends JFrame implements KeyListener {
     @Override
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-            if (snake != null && this.canCurrentShapeMoveRight()) {
+            if (snake != null && snake.canSnakeMoveRight()) {
                 this.moveDirection = "R";
             }
         } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-            if (snake != null && this.canCurrentShapeMoveLeft()) {
+            if (snake != null && snake.canSnakeMoveLeft()) {
                 this.moveDirection = "L";
             }
         } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-            if (snake != null && this.canCurrentShapeMoveDown()) {
+            if (snake != null && snake.canSnakeMoveDown()) {
                 this.moveDirection = "D";
             }
         } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-            if (snake != null && this.canCurrentShapeMoveDown()) {
+            if (snake != null && snake.canSnakeMoveUp()) {
                 this.moveDirection = "U";
             }
         }
-    }
-
-    private boolean canCurrentShapeMoveDown() {
-        //TODO implement later
-        return true;
-    }
-
-    private boolean canCurrentShapeMoveLeft() {
-        //TODO implement later
-        return true;
-    }
-
-    private boolean canCurrentShapeMoveRight() {
-        //TODO implement later
-        return true;
     }
 }
