@@ -26,7 +26,7 @@ public class Block {
     }
 
     public Block getNextBlock() {
-        return nextBlock;
+        return this.nextBlock;
     }
 
     public void setNextBlock(Block nextBlock) {
@@ -34,7 +34,7 @@ public class Block {
     }
 
     public Point getPoint() {
-        return point;
+        return this.point;
     }
 
     public void setPoint(Point point) {

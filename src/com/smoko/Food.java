@@ -10,43 +10,59 @@ public class Food extends Block {
 
     public Food(Point point, PlayField playField) {
         super(point);
-        isDynamic = false;
+        this.isDynamic = false;
         this.playField = playField;
     }
 
     public boolean isDynamic() {
-        return isDynamic;
+        return this.isDynamic;
     }
 
     public void setDynamic(boolean dynamic) {
-        isDynamic = dynamic;
+        this.isDynamic = dynamic;
     }
 
     public void keepFoodInPlayfield() {
-        if (this.getPoint().getX() == playField.getHBlockCount()) {
+        if (this.getPoint().getX() == this.playField.getHBlockCount()) {
             this.getPoint().setX(0);
         } else if (this.getPoint().getX() == -1) {
-            this.getPoint().setX(playField.getHBlockCount() - 1);
+            this.getPoint().setX(this.playField.getHBlockCount() - 1);
         }
 
-        if (this.getPoint().getY() == playField.getVBlockCount()) {
+        if (this.getPoint().getY() == this.playField.getVBlockCount()) {
             this.getPoint().setY(0);
         } else if (this.getPoint().getY() == -1) {
-            this.getPoint().setY(playField.getVBlockCount() - 1);
+            this.getPoint().setY(this.playField.getVBlockCount() - 1);
         }
     }
 
     public void move() {
         if (this.isDynamic) {
             List<Point> possiblePointsToMove = new ArrayList<>();
-            possiblePointsToMove.add(new Point(this.getPoint().getX(), this.getPoint().getY() - 1));
-            possiblePointsToMove.add(new Point(this.getPoint().getX(), this.getPoint().getY() + 1));
-            possiblePointsToMove.add(new Point(this.getPoint().getX() + 1, this.getPoint().getY()));
-            possiblePointsToMove.add(new Point(this.getPoint().getX() - 1, this.getPoint().getY()));
+
+            if (this.getPoint().getY() - 1 >= 0) {
+                possiblePointsToMove.add(new Point(this.getPoint().getX(), this.getPoint().getY() - 1));
+
+            }
+
+            if (this.getPoint().getY() + 1 < this.playField.getVBlockCount()) {
+                possiblePointsToMove.add(new Point(this.getPoint().getX(), this.getPoint().getY() + 1));
+
+            }
+
+            if (this.getPoint().getX() + 1 < this.playField.getHBlockCount()) {
+                possiblePointsToMove.add(new Point(this.getPoint().getX() + 1, this.getPoint().getY()));
+
+            }
+
+            if (this.getPoint().getX() - 1 >= 0) {
+                possiblePointsToMove.add(new Point(this.getPoint().getX() - 1, this.getPoint().getY()));
+
+            }
 
             for (int i = possiblePointsToMove.size() - 1; i >= 0; i--) {
                 // check if there is a block on the current point coordinates
-                if (playField.getBlock(possiblePointsToMove.get(i).getX(), possiblePointsToMove.get(i).getY()) != null) {
+                if (this.playField.getBlock(possiblePointsToMove.get(i).getX(), possiblePointsToMove.get(i).getY()) != null) {
                     possiblePointsToMove.remove(i);
                 }
             }

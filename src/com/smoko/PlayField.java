@@ -15,15 +15,15 @@ public class PlayField {
     }
 
     public int getHBlockCount() {
-        return hBlockCount;
+        return this.hBlockCount;
     }
 
     public int getVBlockCount() {
-        return vBlockCount;
+        return this.vBlockCount;
     }
 
     public List<Block> getBlocks() {
-        return blocks;
+        return this.blocks;
     }
 
     public void setBlocks(List<Block> blocks) {
@@ -44,7 +44,7 @@ public class PlayField {
     public List<Block> getBlocksByPosition(int x, int y) {
         List<Block> blockList = new ArrayList<>();
 
-        for (Block bl : getBlocks()) {
+        for (Block bl : this.getBlocks()) {
             if (bl.getPoint().getY() == y && bl.getPoint().getX() == x) {
                 blockList.add(bl);
             }
@@ -81,6 +81,7 @@ public class PlayField {
     }
 
     public int getStartPointY() {
-        return 0;
+        int result = this.vBlockCount / 2;
+        return result;
     }
 }
