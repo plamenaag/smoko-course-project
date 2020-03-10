@@ -32,9 +32,10 @@ public class PlayField {
 
     public Block getBlock(int x, int y) {
         Block block = null;
-        for (Block bl : getBlocks()) {
+        for (Block bl : this.getBlocks()) {
             if (bl.getPoint().getY() == y && bl.getPoint().getX() == x) {
                 block = bl;
+                break;
             }
         }
 

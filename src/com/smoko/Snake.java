@@ -11,9 +11,13 @@ public class Snake {
         this.head = head;
         this.tail = tail;
         this.playField = playField;
+        findNeck();
+    }
+
+    private void findNeck() {
         this.neck = tail;
 
-        while (this.neck.getNextBlock() != head) {
+        while (this.neck != null && this.neck.getNextBlock() != head) {
             this.neck = this.neck.getNextBlock();
         }
     }
@@ -63,19 +67,19 @@ public class Snake {
     }
 
     public boolean canSnakeMoveDown() {
-        return this.head.getPoint().getY() + 1 != this.neck.getPoint().getY();
+        return this.neck == null || this.head.getPoint().getY() + 1 != this.neck.getPoint().getY();
     }
 
     public boolean canSnakeMoveUp() {
-        return this.head.getPoint().getY() - 1 != this.neck.getPoint().getY();
+        return this.neck == null || this.head.getPoint().getY() - 1 != this.neck.getPoint().getY();
     }
 
     public boolean canSnakeMoveLeft() {
-        return this.head.getPoint().getX() - 1 != this.neck.getPoint().getX();
+        return this.neck == null || this.head.getPoint().getX() - 1 != this.neck.getPoint().getX();
     }
 
     public boolean canSnakeMoveRight() {
-        return this.head.getPoint().getX() + 1 != this.neck.getPoint().getX();
+        return this.neck == null || this.head.getPoint().getX() + 1 != this.neck.getPoint().getX();
     }
 
     // to make sure the snake doesn't disappear somewhere outside the playfield
@@ -99,6 +103,7 @@ public class Snake {
         if (this.eatenBlock != null) {
             this.eatenBlock.setPoint(new Point(this.tail.getPoint().getX(), this.tail.getPoint().getY()));
         }
+
         Block nextBlock;
         do {
             nextBlock = blockToMove.getNextBlock();
@@ -115,7 +120,12 @@ public class Snake {
             this.eatenBlock.setNextBlock(tail);
             this.tail = this.eatenBlock;
             this.eatenBlock = null;
+
+            if (this.neck == null) {
+                findNeck();
+            }
         }
+
     }
 
     public void eat(Block block) {

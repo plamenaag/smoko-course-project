@@ -43,7 +43,8 @@ public class GameEngine extends JFrame implements KeyListener {
                 + this.playField.getVBlockCount() * Constants.BLOCK_SIZE
                 + this.playField.getVBlockCount() * 1
                 + Constants.BAR_HEIGHT
-                + 4 + 60;
+                + 1
+                + 3 + 60;
 
         this.setSize(screenWidth, screenHeight);
         this.setResizable(false);
@@ -70,7 +71,8 @@ public class GameEngine extends JFrame implements KeyListener {
         for (int i = 0; i < Constants.START_SNAKE_SIZE; i++) {
             if (i == 0) {
                 //create head of snake
-                Block block = new Block(playField.getStartPoint());
+                Point startPoint = playField.getStartPoint();
+                Block block = new Block(startPoint);
                 blocks.add(block);
             } else {
                 Block nextBlock = blocks.get(i - 1);
@@ -130,15 +132,14 @@ public class GameEngine extends JFrame implements KeyListener {
 
                 if (this.food != null && this.food.isDynamic() && hasFoodMoveTimeElapsed()) {
                     this.food.move();
-                    tryToEatFood();
                     this.foodLastMoveTime = System.currentTimeMillis();
                 }
 
                 if (this.score >= 300) {
+                    executor.shutdown();
                     JFrame frame = new JFrame();
                     JOptionPane.showMessageDialog(frame, "You are a winner");
                     this.repaint();
-                    executor.shutdown();
                     return;
                 }
             }
@@ -241,6 +242,7 @@ public class GameEngine extends JFrame implements KeyListener {
                 g.setColor(Color.BLACK);
             }
             g.fillRect(x, y, Constants.BLOCK_SIZE, Constants.BLOCK_SIZE);
+
         }
     }
 

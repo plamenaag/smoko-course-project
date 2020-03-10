@@ -22,19 +22,6 @@ public class Food extends Block {
         this.isDynamic = dynamic;
     }
 
-    public void keepFoodInPlayfield() {
-        if (this.getPoint().getX() == this.playField.getHBlockCount()) {
-            this.getPoint().setX(0);
-        } else if (this.getPoint().getX() == -1) {
-            this.getPoint().setX(this.playField.getHBlockCount() - 1);
-        }
-
-        if (this.getPoint().getY() == this.playField.getVBlockCount()) {
-            this.getPoint().setY(0);
-        } else if (this.getPoint().getY() == -1) {
-            this.getPoint().setY(this.playField.getVBlockCount() - 1);
-        }
-    }
 
     public void move() {
         if (this.isDynamic) {
@@ -42,27 +29,24 @@ public class Food extends Block {
 
             if (this.getPoint().getY() - 1 >= 0) {
                 possiblePointsToMove.add(new Point(this.getPoint().getX(), this.getPoint().getY() - 1));
-
             }
 
             if (this.getPoint().getY() + 1 < this.playField.getVBlockCount()) {
                 possiblePointsToMove.add(new Point(this.getPoint().getX(), this.getPoint().getY() + 1));
-
             }
 
             if (this.getPoint().getX() + 1 < this.playField.getHBlockCount()) {
                 possiblePointsToMove.add(new Point(this.getPoint().getX() + 1, this.getPoint().getY()));
-
             }
 
             if (this.getPoint().getX() - 1 >= 0) {
                 possiblePointsToMove.add(new Point(this.getPoint().getX() - 1, this.getPoint().getY()));
-
             }
 
             for (int i = possiblePointsToMove.size() - 1; i >= 0; i--) {
                 // check if there is a block on the current point coordinates
-                if (this.playField.getBlock(possiblePointsToMove.get(i).getX(), possiblePointsToMove.get(i).getY()) != null) {
+                Block blockAtPoint = this.playField.getBlock(possiblePointsToMove.get(i).getX(), possiblePointsToMove.get(i).getY());
+                if (blockAtPoint != null) {
                     possiblePointsToMove.remove(i);
                 }
             }
@@ -73,7 +57,6 @@ public class Food extends Block {
                 int randomPointIndex = r.nextInt(possiblePointsToMove.size());
                 Point selectedPoint = possiblePointsToMove.get(randomPointIndex);
                 this.setPoint(selectedPoint);
-                keepFoodInPlayfield();
             }
         }
     }
